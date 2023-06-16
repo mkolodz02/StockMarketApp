@@ -11,7 +11,7 @@ namespace StockMarketApp.Server.Data
     public class ApplicationDbContext : ApiAuthorizationDbContext<ApplicationUser>
     {
 
-        public DbSet<Watchlist> Watchlist { get; set; }
+        public DbSet<WatchlistItem> Watchlist { get; set; }
 
         public ApplicationDbContext(
             DbContextOptions options,
@@ -23,7 +23,7 @@ namespace StockMarketApp.Server.Data
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<Watchlist>(entity =>
+            builder.Entity<WatchlistItem>(entity =>
             {
                 entity.HasKey(e => new { e.UserLogin, e.CompanyTicker });
                 entity.Property(e => e.UserLogin).IsRequired();

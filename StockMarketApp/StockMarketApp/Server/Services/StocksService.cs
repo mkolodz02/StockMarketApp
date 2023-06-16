@@ -1,10 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using StockMarketApp.Shared.Models.DTOs;
-using System.Text;
-using System.Text.Json;
-using System.Collections.Generic;
-using JsonSerializer = Newtonsoft.Json.JsonSerializer;
+using StockMarketApp.Server.Data;
 
 namespace StockMarketApp.Server.Services
 {
@@ -20,6 +17,14 @@ namespace StockMarketApp.Server.Services
 
     public class StocksService : IStocksService
     {
+
+        //private readonly ApplicationDbContext _context;
+
+        //public StocksService(ApplicationDbContext context)
+        //{
+        //    _context = context;
+        //}   
+
         public async Task<AllOhlcDataDto> GetOhlcData(string dateFrom, string dateTo, string ticker)
         {
             string url = $"https://api.polygon.io/v2/aggs/ticker/{ticker}/range/1/day/{dateFrom}/{dateTo}?adjusted=true&sort=asc&limit=120&apiKey=XjtXTzHcSpBZy3bYsKF1fw4GeFe1VpKg";
@@ -35,7 +40,7 @@ namespace StockMarketApp.Server.Services
                 QueryCount = Convert.ToInt32(jsonObject["queryCount"]),
                 ResultsCount = Convert.ToInt32(jsonObject["resultsCount"]),
                 Adjusted = (bool)jsonObject["adjusted"],
-                Results = resultsList, //DO ZMIANY
+                Results = resultsList,
                 Status = Convert.ToString(jsonObject["status"]),
                 RequestId = Convert.ToString(jsonObject["request_id"]),
                 Count = Convert.ToInt32(jsonObject["count"])

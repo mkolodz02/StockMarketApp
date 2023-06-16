@@ -1,10 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata;
-using StockMarketApp.Server.Models;
+﻿using Microsoft.AspNetCore.Mvc;
 using StockMarketApp.Server.Services;
-using System.Security.Claims;
 
 namespace StockMarketApp.Server.Controllers
 {
@@ -35,8 +30,7 @@ namespace StockMarketApp.Server.Controllers
         [HttpGet("getUser")]
         public async Task<IActionResult> GetUser()
         {
-            //var userName = HttpContext.User.Identity;
-            return Ok();
+            throw new NotImplementedException();
         }
 
         [HttpGet("getOhlcData")]

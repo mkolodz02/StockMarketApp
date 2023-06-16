@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33424.131
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockMarketApp.Server", "StockMarketApp\Server\StockMarketApp.Server.csproj", "{FA6480F0-3AB3-4EDD-A7DA-8CE7126A4AA3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockMarketApp.Server", "StockMarketApp\Server\StockMarketApp.Server.csproj", "{FA6480F0-3AB3-4EDD-A7DA-8CE7126A4AA3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockMarketApp.Client", "StockMarketApp\Client\StockMarketApp.Client.csproj", "{C681CFF6-6D14-4880-8444-BF8F45C82D38}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockMarketApp.Client", "StockMarketApp\Client\StockMarketApp.Client.csproj", "{C681CFF6-6D14-4880-8444-BF8F45C82D38}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockMarketApp.Shared", "StockMarketApp\Shared\StockMarketApp.Shared.csproj", "{D5A8C4A2-3474-420B-A4B2-AB50E07F6A38}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockMarketApp.Shared", "StockMarketApp\Shared\StockMarketApp.Shared.csproj", "{D5A8C4A2-3474-420B-A4B2-AB50E07F6A38}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

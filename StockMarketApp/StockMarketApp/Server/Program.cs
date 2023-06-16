@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using StockMarketApp.Server.Data;
 using StockMarketApp.Server.Models;
 using StockMarketApp.Server.Services;
+using Syncfusion.Blazor;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,9 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
 builder.Services.AddIdentityServer()
     .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
 
+builder.Services.AddSyncfusionBlazor();
+Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MjQ0MDg5MUAzMjMxMmUzMDJlMzBoa2F3WHRYamI4NiswSDMySUpXWmpvei9vcGV6blRIZUZvZjNZNUEwaXBrPQ==");
+
 builder.Services.AddAuthentication()
     .AddIdentityServerJwt();
 
@@ -26,6 +30,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
 builder.Services.AddScoped<IStocksService, StocksService>();
+builder.Services.AddScoped<IWatchlistService, WatchlistService>();
+
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 var app = builder.Build();
 
