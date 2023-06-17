@@ -1,0 +1,61 @@
+﻿@page "/companies"
+@using Newtonsoft.Json;
+@inject HttpClient httpClient
+@inject NavigationManager navigationManager
+
+<h3>SearchPage</h3>
+
+<div class="search-bar">
+    <SfAutoComplete TItem="CompanyTickerNameDto" TValue="string" MinLength=3 Placeholder="Select a company" DataSource="CompaniesList">
+        <AutoCompleteTemplates TItem="CompanyTickerNameDto">
+            <ItemTemplate>
+                <span class="ticker">@((context as CompanyTickerNameDto).Ticker)</span>   <span class="name">@((context as CompanyTickerNameDto).Name)</span>
+            </ItemTemplate>
+        </AutoCompleteTemplates>
+        <AutoCompleteFieldSettings Value="Ticker">
+        </AutoCompleteFieldSettings>
+        <AutoCompleteEvents TValue="string" TItem="CompanyTickerNameDto" ValueChange="OnValueChanged" OnValueSelect="OnSelected"></AutoCompleteEvents>
+    </SfAutoComplete>
+</div>
+
+@code {
+
+    public List<CompanyTickerNameDto> CompaniesList { get; set; }
+
+    public string controllerUrl = "https://localhost:7194/api/stocks/StocksList";
+
+    public string chosenCompanyTicker { get; set; } = null!;
+
+    protected async override Task OnInitializedAsync()
+    {
+        CompaniesList = new List<CompanyTickerNameDto>();
+    }
+
+    private void OnSelected(SelectEventArgs<CompanyTickerNameDto> args)
+    {
+        navigationManager.NavigateTo($"/companies/{args.ItemData.Ticker}");
+    }
+
+    private async void OnValueChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<string, CompanyTickerNameDto> args)
+    {
+        await GetCompaniesList(controllerUrl + "/" + args.Value.ToUpper());
+    }
+
+    private async Task GetCompaniesList(string url)
+    {
+        var responseHttp = await httpClient.GetAsync(url);
+
+        if (responseHttp.IsSuccessStatusCode)
+        {
+            var responseString = await responseHttp.Content.ReadAsStringAsync();
+            CompaniesList = JsonConvert.DeserializeObject<List<CompanyTickerNameDto>>(responseString);
+            StateHasChanged();
+        }
+        else
+        {
+            //
+        }
+
+    }
+
+}

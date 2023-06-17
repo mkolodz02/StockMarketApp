@@ -15,34 +15,28 @@ namespace StockMarketApp.Server.Controllers
             _stocksService = stocksService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetStockInfo()
+        [HttpGet("StockInfo/{ticker}")]
+        public async Task<IActionResult> GetStockInfo(string ticker)
         {
-            return Ok(await _stocksService.GetStockInfo("TSLA"));
+            return Ok(await _stocksService.GetStockInfo(ticker));
         }
 
-        [HttpGet("getStocksList")]
-        public async Task<IActionResult> GetStockList()
+        [HttpGet("StocksList/{ticker}")]
+        public async Task<IActionResult> GetStockList(string ticker)
         {
-            return Ok(await _stocksService.GetStockList("TSL"));
+            return Ok(await _stocksService.GetStockList(ticker));
         }
 
-        [HttpGet("getUser")]
-        public async Task<IActionResult> GetUser()
+        [HttpGet("OhlcData/{ticker}/{dateFrom}/{dateTo}")] // ???
+        public async Task<IActionResult> GetOhlcData(string ticker, string dateFrom, string dateTo)
         {
-            throw new NotImplementedException();
+            return Ok(await _stocksService.GetOhlcData(ticker, dateFrom, dateTo));
         }
 
-        [HttpGet("getOhlcData")]
-        public async Task<IActionResult> GetOhlcData()
+        [HttpGet("DailyPrices/{ticker}/{date}")]
+        public async Task<IActionResult> GetDailyPrices(string ticker, string date)
         {
-            return Ok(await _stocksService.GetOhlcData("2023-01-09", "2023-01-14", "TSLA"));
-        }
-
-        [HttpGet("getDailyPrices")]
-        public async Task<IActionResult> GetDailyPrices()
-        {
-            return Ok(await _stocksService.GetDailyPrices("TSLA", "2023-03-02"));
+            return Ok(await _stocksService.GetDailyPrices(ticker, date));
         }
     }
 }

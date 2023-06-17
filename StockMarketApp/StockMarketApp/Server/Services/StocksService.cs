@@ -10,22 +10,14 @@ namespace StockMarketApp.Server.Services
     {
         Task<CompanyMainDataDto> GetStockInfo(string ticker);
         Task<List<CompanyTickerNameDto>> GetStockList(string tickerPart);
-        Task<AllOhlcDataDto> GetOhlcData(string dateFrom, string dateTo, string ticker);
+        Task<List<OhlcData>> GetOhlcData(string ticker, string dateFrom, string dateTo);
         Task<string> GetResponseBody(string url);
         Task<DailyPricesDto> GetDailyPrices(string ticker, string dateFrom);
     }
 
     public class StocksService : IStocksService
-    {
-
-        //private readonly ApplicationDbContext _context;
-
-        //public StocksService(ApplicationDbContext context)
-        //{
-        //    _context = context;
-        //}   
-
-        public async Task<AllOhlcDataDto> GetOhlcData(string dateFrom, string dateTo, string ticker)
+    {  
+        public async Task<List<OhlcData>> GetOhlcData(string ticker, string dateFrom, string dateTo)
         {
             string url = $"https://api.polygon.io/v2/aggs/ticker/{ticker}/range/1/day/{dateFrom}/{dateTo}?adjusted=true&sort=asc&limit=120&apiKey=XjtXTzHcSpBZy3bYsKF1fw4GeFe1VpKg";
 
@@ -34,20 +26,15 @@ namespace StockMarketApp.Server.Services
 
             var resultsList = JsonConvert.DeserializeObject<List<OhlcData>>(jsonObject["results"].ToString());
 
-            return new AllOhlcDataDto
+            for (int i = 0; i < resultsList.Count; i++)
             {
-                Ticker = Convert.ToString(jsonObject["ticker"]),
-                QueryCount = Convert.ToInt32(jsonObject["queryCount"]),
-                ResultsCount = Convert.ToInt32(jsonObject["resultsCount"]),
-                Adjusted = (bool)jsonObject["adjusted"],
-                Results = resultsList,
-                Status = Convert.ToString(jsonObject["status"]),
-                RequestId = Convert.ToString(jsonObject["request_id"]),
-                Count = Convert.ToInt32(jsonObject["count"])
-            };
+                resultsList[i].Date = DateTime.Parse(dateFrom).AddDays(i);
+                resultsList[i].Date = resultsList[i].Date.Date;
+            }
+
+            return resultsList;
         }
 
-        
 
         public async Task<CompanyMainDataDto> GetStockInfo(string ticker)
         {
@@ -60,7 +47,7 @@ namespace StockMarketApp.Server.Services
             return new CompanyMainDataDto
             {
                 Ticker = Convert.ToString(jsonObject["results"]["ticker"]),
-                Logo = Convert.ToString(jsonObject["results"]["branding"]["logo_url"]),
+                Logo = Convert.ToString(jsonObject["results"]["branding"]["logo_url"]) + "?apiKey=XjtXTzHcSpBZy3bYsKF1fw4GeFe1VpKg",
                 Name = Convert.ToString(jsonObject["results"]["name"]),
                 City = Convert.ToString(jsonObject["results"]["address"]["city"])
 

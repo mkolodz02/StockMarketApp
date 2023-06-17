@@ -20,8 +20,6 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
 builder.Services.AddIdentityServer()
     .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
 
-builder.Services.AddSyncfusionBlazor();
-Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MjQ0MDg5MUAzMjMxMmUzMDJlMzBoa2F3WHRYamI4NiswSDMySUpXWmpvei9vcGV6blRIZUZvZjNZNUEwaXBrPQ==");
 
 builder.Services.AddAuthentication()
     .AddIdentityServerJwt();

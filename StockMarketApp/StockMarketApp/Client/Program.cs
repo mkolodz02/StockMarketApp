@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using StockMarketApp.Client;
+using Syncfusion.Blazor;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -15,5 +16,8 @@ builder.Services.AddHttpClient("StockMarketApp.ServerAPI", client => client.Base
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("StockMarketApp.ServerAPI"));
 
 builder.Services.AddApiAuthorization();
+
+builder.Services.AddSyncfusionBlazor();
+Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MjQ0MjA5MkAzMjMxMmUzMDJlMzBoa2F3WHRYamI4NiswSDMySUpXWmpvei9vcGV6blRIZUZvZjNZNUEwaXBrPQ==");
 
 await builder.Build().RunAsync();

@@ -1,0 +1,65 @@
+﻿@page "/companies/{Ticker}"
+@using Newtonsoft.Json;
+@using Newtonsoft.Json.Linq;
+@inject HttpClient httpClient
+@inject NavigationManager NavigationManager
+
+<div class="main-info">
+    <img src="@CompMainData.Logo" alt="Logo" />
+    <h2>@CompMainData.Ticker</h2>
+    <h3>@CompMainData.Name</h3>
+    <h3>@CompMainData.City</h3>      
+</div>
+
+@if(OhlcDataList.Count > 0) // else add waiting gif
+{
+    <SfStockChart>
+        <StockChartSeriesCollection>
+            <StockChartSeries Type="@ChartSeriesType.Candle" DataSource="@OhlcDataList" XName="Date" 
+                Open="O" High="H" Low="L" Close="C" Volume="VW"></StockChartSeries>
+        </StockChartSeriesCollection>
+    </SfStockChart>
+}
+
+@code {
+    [Parameter]
+    public string Ticker { get; set; } = null!;
+    public CompanyMainDataDto CompMainData { get; set; }
+    public DailyPricesDto CompDailyPrices { get; set; }
+    public List<OhlcData> OhlcDataList { get; set;  }
+
+    protected async override Task OnInitializedAsync()
+    {
+        OhlcDataList = new List<OhlcData>();
+        CompMainData = new CompanyMainDataDto();
+        CompDailyPrices = new DailyPricesDto();
+
+        await GetOhlcData();
+        await GetMainData();        
+        await GetDailyPrices();
+
+    }
+
+    public async Task GetMainData()
+    {
+        var result = await httpClient.GetAsync($"https://localhost:7194/api/stocks/stockInfo/{Ticker}");
+        var responseBody = await result.Content.ReadAsStringAsync();
+        CompMainData = JsonConvert.DeserializeObject<CompanyMainDataDto>(responseBody);
+    }
+
+    public async Task GetOhlcData()
+    {
+        var result = await httpClient.GetAsync($"https://localhost:7194/api/stocks/OhlcData/{Ticker}/2023-01-09/2023-04-14");
+        var responseBody = await result.Content.ReadAsStringAsync();
+        OhlcDataList = JsonConvert.DeserializeObject<List<OhlcData>>(responseBody);
+        Console.WriteLine(OhlcDataList[0]);
+    }
+
+    public async Task GetDailyPrices()
+    {
+        var result = await httpClient.GetAsync($"https://localhost:7194/api/stocks/DailyPrices/{Ticker}/2023-01-09");
+        var responseBody = await result.Content.ReadAsStringAsync();
+        CompDailyPrices = JsonConvert.DeserializeObject<DailyPricesDto>(responseBody);
+    }
+
+}
