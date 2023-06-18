@@ -44,14 +44,30 @@ namespace StockMarketApp.Server.Services
 
             var jsonObject = JObject.Parse(responseBody);
 
+            string? logo = jsonObject?["results"]["branding"]["logo_url"] == null ? // zrobić coś z nullami
+                "brak danych" :
+                Convert.ToString(jsonObject?["results"]["branding"]["logo_url"]) + "?apiKey=XjtXTzHcSpBZy3bYsKF1fw4GeFe1VpKg";
+
+            string? name = jsonObject?["results"]["name"] == null ? "brak danych" : Convert.ToString(jsonObject?["results"]["name"]);
+
+            string? city = jsonObject?["results"]["address"]["city"] == null ? "brak danych" : 
+                Convert.ToString(jsonObject?["results"]["address"]["city"]);
+
+            //return new CompanyMainDataDto
+            //{
+            //    Ticker = Convert.ToString(jsonObject["results"]["ticker"]),
+            //    Logo = Convert.ToString(jsonObject["results"]["branding"]["logo_url"]) + "?apiKey=XjtXTzHcSpBZy3bYsKF1fw4GeFe1VpKg",
+            //    Name = Convert.ToString(jsonObject["results"]["name"]),
+            //    City = Convert.ToString(jsonObject["results"]["address"]["city"])
+
+            //}; 
             return new CompanyMainDataDto
             {
-                Ticker = Convert.ToString(jsonObject["results"]["ticker"]),
-                Logo = Convert.ToString(jsonObject["results"]["branding"]["logo_url"]) + "?apiKey=XjtXTzHcSpBZy3bYsKF1fw4GeFe1VpKg",
-                Name = Convert.ToString(jsonObject["results"]["name"]),
-                City = Convert.ToString(jsonObject["results"]["address"]["city"])
-
-            }; 
+                Ticker = ticker,
+                Logo = logo,
+                Name = name,
+                City = city
+            };
         }
 
         public async Task<List<CompanyTickerNameDto>> GetStockList(string tickerPart)

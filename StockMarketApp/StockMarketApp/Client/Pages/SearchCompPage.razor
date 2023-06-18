@@ -1,7 +1,9 @@
 ﻿@page "/companies"
+@using Microsoft.AspNetCore.Authorization;
 @using Newtonsoft.Json;
 @inject HttpClient httpClient
 @inject NavigationManager navigationManager
+@attribute [Authorize]
 
 <h3>SearchPage</h3>
 

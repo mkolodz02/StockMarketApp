@@ -1,0 +1,22 @@
+﻿body {
+}
+
+img{
+    height: 100px;
+    width: 200px;
+}
+
+th, td{
+    text-align: center;
+    vertical-align: middle;
+}
+
+tr td:last-child{
+    width: 1px;
+    white-space: nowrap;
+}
+
+table{
+    border-spacing: 30px;
+    width: 500px;
+}

@@ -1,24 +1,44 @@
 ﻿@page "/companies/{Ticker}"
+@using Microsoft.AspNetCore.Authorization;
 @using Newtonsoft.Json;
 @using Newtonsoft.Json.Linq;
+@using Syncfusion.Blazor.Buttons;
 @inject HttpClient httpClient
-@inject NavigationManager NavigationManager
+@inject NavigationManager navigationManager
+@attribute [Authorize]
 
-<div class="main-info">
-    <img src="@CompMainData.Logo" alt="Logo" />
-    <h2>@CompMainData.Ticker</h2>
-    <h3>@CompMainData.Name</h3>
-    <h3>@CompMainData.City</h3>      
-</div>
-
-@if(OhlcDataList.Count > 0) // else add waiting gif
+@if(OhlcDataList.Count > 0)
 {
+    <div class="main-info">
+        <img src="@CompMainData.Logo" alt="Logo" />
+        <h2>Ticker: @CompMainData.Ticker</h2>
+        <h3>Full name: @CompMainData.Name</h3>
+        <h3>City: @CompMainData.City</h3>
+        <SfButton @onclick="AddToWatchlist">Add To Watchlist</SfButton>
+        <SfButton @onclick="NavigateToWatchlist">Watchlist</SfButton>
+    </div>
+
     <SfStockChart>
         <StockChartSeriesCollection>
             <StockChartSeries Type="@ChartSeriesType.Candle" DataSource="@OhlcDataList" XName="Date" 
                 Open="O" High="H" Low="L" Close="C" Volume="VW"></StockChartSeries>
         </StockChartSeriesCollection>
     </SfStockChart>
+
+    <div class="daily-data">
+        <h3>Date: @CompDailyPrices.From</h3>
+        <h3>Open: @CompDailyPrices.Open</h3>
+        <h3>High: @CompDailyPrices.High</h3>
+        <h3>Low: @CompDailyPrices.Low</h3>
+        <h3>Close: @CompDailyPrices.Close</h3>
+        <h3>Volume: @CompDailyPrices.Volume</h3>
+        <h3>AfterHours: @CompDailyPrices.AfterHours</h3>
+        <h3>PreMarket: @CompDailyPrices.PreMarket</h3>
+    </div>
+}
+else
+{
+    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif?20151024034921" />
 }
 
 @code {
@@ -27,9 +47,13 @@
     public CompanyMainDataDto CompMainData { get; set; }
     public DailyPricesDto CompDailyPrices { get; set; }
     public List<OhlcData> OhlcDataList { get; set;  }
+    public DateTime CurrentDate { get; set; } //Date of the day before - API limitation
+    public string stringCurrentDate { get; set; } = null!;
 
     protected async override Task OnInitializedAsync()
     {
+        CurrentDate = DateTime.Now.AddDays(-2);
+        stringCurrentDate = CurrentDate.ToString("yyyy-MM-dd");
         OhlcDataList = new List<OhlcData>();
         CompMainData = new CompanyMainDataDto();
         CompDailyPrices = new DailyPricesDto();
@@ -49,17 +73,34 @@
 
     public async Task GetOhlcData()
     {
-        var result = await httpClient.GetAsync($"https://localhost:7194/api/stocks/OhlcData/{Ticker}/2023-01-09/2023-04-14");
+        string stringMonthAgoDate = CurrentDate.AddMonths(-2).ToString("yyyy-MM-dd");
+        var result = await httpClient.GetAsync($"https://localhost:7194/api/stocks/OhlcData/{Ticker}/{stringMonthAgoDate}/{stringCurrentDate}");
         var responseBody = await result.Content.ReadAsStringAsync();
         OhlcDataList = JsonConvert.DeserializeObject<List<OhlcData>>(responseBody);
-        Console.WriteLine(OhlcDataList[0]);
     }
 
     public async Task GetDailyPrices()
     {
-        var result = await httpClient.GetAsync($"https://localhost:7194/api/stocks/DailyPrices/{Ticker}/2023-01-09");
+        var result = await httpClient.GetAsync($"https://localhost:7194/api/stocks/DailyPrices/{Ticker}/{stringCurrentDate}");
         var responseBody = await result.Content.ReadAsStringAsync();
         CompDailyPrices = JsonConvert.DeserializeObject<DailyPricesDto>(responseBody);
+    }
+
+    public async Task AddToWatchlist()
+    {
+        WatchlistItem newItem = new WatchlistItem()
+        {
+            UserLogin = "user",
+            CompanyTicker = Ticker
+        };
+
+        await httpClient.PostAsJsonAsync("https://localhost:7194/api/watchlist/addToWatchlist", newItem);
+        //await NavigateToWatchlist();
+    }
+
+    public async Task NavigateToWatchlist()
+    {
+        navigationManager.NavigateTo("/companies/watchlist");
     }
 
 }

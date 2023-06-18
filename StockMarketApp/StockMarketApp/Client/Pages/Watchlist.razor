@@ -1,0 +1,74 @@
+﻿@page "/companies/watchlist"
+@using Microsoft.AspNetCore.Authorization;
+@using Newtonsoft.Json;
+@using Syncfusion.Blazor.Buttons;
+@inject HttpClient httpClient
+@inject NavigationManager navigationManager
+@inject IJSRuntime JSRuntime
+@attribute [Authorize]
+
+<h3>Watchlist</h3>
+@if(CompaniesList.Count > 0)
+{
+    <table>
+        <tr>
+            <th>Logo</th>
+            <th>Ticker</th>
+            <th>Name</th>
+            <th>City</th>
+        </tr>
+        @foreach (var comp in CompaniesList)
+        {
+            <tr>
+                <td><img src="@comp.Logo" alt="Logo" /></td>
+                <td>@comp.Ticker</td>
+                <td>@comp.Name</td>
+                <td>@comp.City</td>
+            </tr>
+        }
+    </table>
+    <SfButton OnClick="NavigateToDashboard">Return</SfButton>
+}
+else
+{
+    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif?20151024034921" />
+}
+
+@code {
+    public List<CompanyMainDataDto> CompaniesList { get; set; }
+    public List<WatchlistItem> WatchlistItems { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        CompaniesList = new List<CompanyMainDataDto>();
+        WatchlistItems = new List<WatchlistItem>();
+
+        await GetWatchlistItems();
+
+        foreach(var item in WatchlistItems)
+        {
+            CompaniesList.Add(await GetCompany(item.CompanyTicker));
+        }
+
+    }
+
+    public async Task<CompanyMainDataDto> GetCompany(string ticker)
+    {
+        var result = await httpClient.GetAsync($"https://localhost:7194/api/stocks/stockInfo/{ticker}");
+        var responseBody = await result.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<CompanyMainDataDto>(responseBody);
+    }
+
+    public async Task GetWatchlistItems()
+    {
+        var result = await httpClient.GetAsync("https://localhost:7194/api/watchlist/userWatchlist");
+        var responseBody = await result.Content.ReadAsStringAsync();
+        WatchlistItems = JsonConvert.DeserializeObject<List<WatchlistItem>>(responseBody);
+    }
+
+    public async void NavigateToDashboard()
+    {
+        await JSRuntime.InvokeVoidAsync("history.back");
+    }
+
+}
