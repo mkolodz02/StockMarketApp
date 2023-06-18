@@ -20,7 +20,15 @@ namespace StockMarketApp.Server.Controllers
         [HttpGet("StockInfo/{ticker}")]
         public async Task<IActionResult> GetStockInfo(string ticker)
         {
-            return Ok(await _stocksService.GetStockInfo(ticker));
+
+            if(await _stocksService.IsCompInDatabase(ticker) is false)
+            {
+                var compInfo = await _stocksService.GetStockInfo(ticker);
+                await _stocksService.AddCompToDatabase(compInfo);
+                return Created("api/stocks", compInfo);
+            }
+
+            return Ok(await _stocksService.GetStockInfoFromDb(ticker));
         }
 
         [HttpGet("StocksList/{ticker}")]

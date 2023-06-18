@@ -46,6 +46,26 @@ namespace StockMarketApp.Server.Controllers
             return Created("api/watchlist", item);
         }
 
+        [HttpDelete("removeFromWatchlist/{ticker}")]
+        public async Task<IActionResult> RemoveFromWatchlist(string ticker)
+        {
+
+            var item = new WatchlistItem()
+            {
+                UserLogin = user.Email,
+                CompanyTicker = ticker
+            };
+
+            if(await _service.DoesItemExists(item) is false)
+            {
+                return NotFound($"Company with ticker '{ticker}' doesn't exist in watchlist");
+            }
+            else
+            {
+                await _service.RemoveFromWatchlist(item);
+                return Ok($"Item '{item.CompanyTicker}' removed from watchlist");
+            }
+        }
 
     }
 }

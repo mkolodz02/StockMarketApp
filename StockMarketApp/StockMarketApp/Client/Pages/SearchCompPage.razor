@@ -8,7 +8,7 @@
 <h3>SearchPage</h3>
 
 <div class="search-bar">
-    <SfAutoComplete TItem="CompanyTickerNameDto" TValue="string" MinLength=3 Placeholder="Select a company" DataSource="CompaniesList">
+    <SfAutoComplete @ref="AutoComp" TItem="CompanyTickerNameDto" TValue="string" MinLength=3 Placeholder="Select a company" DataSource="CompaniesList">
         <AutoCompleteTemplates TItem="CompanyTickerNameDto">
             <ItemTemplate>
                 <span class="ticker">@((context as CompanyTickerNameDto).Ticker)</span>   <span class="name">@((context as CompanyTickerNameDto).Name)</span>
@@ -22,6 +22,7 @@
 
 @code {
 
+    public SfAutoComplete<string, CompanyTickerNameDto> AutoComp { get; set; }
     public List<CompanyTickerNameDto> CompaniesList { get; set; }
 
     public string controllerUrl = "https://localhost:7194/api/stocks/StocksList";
@@ -40,7 +41,10 @@
 
     private async void OnValueChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<string, CompanyTickerNameDto> args)
     {
-        await GetCompaniesList(controllerUrl + "/" + args.Value.ToUpper());
+        if(args != null && args.Value.Length == 3)
+        {
+            await GetCompaniesList(controllerUrl + "/" + args.Value.ToUpper());
+        }
     }
 
     private async Task GetCompaniesList(string url)
@@ -52,6 +56,7 @@
             var responseString = await responseHttp.Content.ReadAsStringAsync();
             CompaniesList = JsonConvert.DeserializeObject<List<CompanyTickerNameDto>>(responseString);
             StateHasChanged();
+            //await AutoComp.RefreshDataAsync();
         }
         else
         {

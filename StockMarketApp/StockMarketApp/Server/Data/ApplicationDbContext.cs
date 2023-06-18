@@ -12,7 +12,7 @@ namespace StockMarketApp.Server.Data
     {
 
         public DbSet<WatchlistItem> Watchlist { get; set; }
-
+        public DbSet<CachedMainData> MainCompanyData { get; set; }
         public ApplicationDbContext(
             DbContextOptions options,
             IOptions<OperationalStoreOptions> operationalStoreOptions) : base(options, operationalStoreOptions)
@@ -29,6 +29,16 @@ namespace StockMarketApp.Server.Data
                 entity.Property(e => e.UserLogin).IsRequired();
                 entity.Property(e => e.CompanyTicker).IsRequired();
             });
+
+            builder.Entity<CachedMainData>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Ticker).IsRequired();
+                entity.Property(e => e.Logo).IsRequired();
+                entity.Property(e => e.Name).IsRequired();
+                entity.Property(e => e.City).IsRequired();
+            });
+
         }
 
     }

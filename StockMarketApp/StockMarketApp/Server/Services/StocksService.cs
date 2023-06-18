@@ -2,6 +2,8 @@
 using Newtonsoft.Json.Linq;
 using StockMarketApp.Shared.Models.DTOs;
 using StockMarketApp.Server.Data;
+using Microsoft.EntityFrameworkCore;
+using StockMarketApp.Shared.Models;
 
 namespace StockMarketApp.Server.Services
 {
@@ -13,10 +15,21 @@ namespace StockMarketApp.Server.Services
         Task<List<OhlcData>> GetOhlcData(string ticker, string dateFrom, string dateTo);
         Task<string> GetResponseBody(string url);
         Task<DailyPricesDto> GetDailyPrices(string ticker, string dateFrom);
+        Task<bool> IsCompInDatabase(string ticker);
+        Task AddCompToDatabase(CompanyMainDataDto company);
+        Task<CompanyMainDataDto> GetStockInfoFromDb(string ticker);
     }
 
     public class StocksService : IStocksService
-    {  
+    {
+
+        private readonly ApplicationDbContext _context;
+
+        public StocksService(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
         public async Task<List<OhlcData>> GetOhlcData(string ticker, string dateFrom, string dateTo)
         {
             string url = $"https://api.polygon.io/v2/aggs/ticker/{ticker}/range/1/day/{dateFrom}/{dateTo}?adjusted=true&sort=asc&limit=120&apiKey=XjtXTzHcSpBZy3bYsKF1fw4GeFe1VpKg";
@@ -44,13 +57,13 @@ namespace StockMarketApp.Server.Services
 
             var jsonObject = JObject.Parse(responseBody);
 
-            string? logo = jsonObject?["results"]["branding"]["logo_url"] == null ? // zrobić coś z nullami
+            string logo = jsonObject?["results"]["branding"]["logo_url"] == null ? // zrobić coś z nullami
                 "brak danych" :
                 Convert.ToString(jsonObject?["results"]["branding"]["logo_url"]) + "?apiKey=XjtXTzHcSpBZy3bYsKF1fw4GeFe1VpKg";
 
-            string? name = jsonObject?["results"]["name"] == null ? "brak danych" : Convert.ToString(jsonObject?["results"]["name"]);
+            string name = jsonObject?["results"]["name"] == null ? "brak danych" : Convert.ToString(jsonObject?["results"]["name"]);
 
-            string? city = jsonObject?["results"]["address"]["city"] == null ? "brak danych" : 
+            string city = jsonObject?["results"]["address"]["city"] == null ? "brak danych" : 
                 Convert.ToString(jsonObject?["results"]["address"]["city"]);
 
             //return new CompanyMainDataDto
@@ -67,6 +80,33 @@ namespace StockMarketApp.Server.Services
                 Logo = logo,
                 Name = name,
                 City = city
+            };
+        }
+
+        public async Task AddCompToDatabase(CompanyMainDataDto company)
+        {
+            var cachedMainData = new CachedMainData()
+            {
+                Ticker = company.Ticker,
+                Logo = company.Logo,
+                Name = company.Name,
+                City = company.City,
+            };
+
+            await _context.AddAsync(cachedMainData);
+            await _context.SaveChangesAsync();
+
+        }
+
+        public async Task<CompanyMainDataDto> GetStockInfoFromDb(string ticker)
+        {
+            var info = await _context.MainCompanyData.FirstAsync(i => i.Ticker == ticker);
+            return new CompanyMainDataDto
+            {
+                Ticker = info.Ticker,
+                Logo = info.Logo,
+                Name = info.Name,
+                City = info.City,
             };
         }
 
@@ -104,6 +144,12 @@ namespace StockMarketApp.Server.Services
                 AfterHours = Convert.ToDouble(jsonObject["afterHours"]),
                 PreMarket = Convert.ToDouble(jsonObject["preMarket"]),
             };
+        }
+
+        public async Task<bool> IsCompInDatabase(string ticker)
+        {
+            var comp = await _context.MainCompanyData.FirstOrDefaultAsync(c => c.Ticker == ticker);
+            return comp != null;
         }
 
         public async Task<string> GetResponseBody(string url)

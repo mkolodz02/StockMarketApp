@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using StockMarketApp.Server.Data;
 using StockMarketApp.Shared.Models;
+using Syncfusion.Blazor.RichTextEditor;
 
 namespace StockMarketApp.Server.Services
 {
@@ -9,6 +10,7 @@ namespace StockMarketApp.Server.Services
         Task<List<WatchlistItem>> GetUserWatchlistItems(string userLogin);
         Task AddToWatchlist(WatchlistItem watchlistItem);
         Task<bool> DoesItemExists(WatchlistItem watchlistItem);
+        Task RemoveFromWatchlist(WatchlistItem item);
     }
 
     public class WatchlistService : IWatchlistService
@@ -39,6 +41,13 @@ namespace StockMarketApp.Server.Services
 
             return item != null;    
 
+        }
+
+        public async Task RemoveFromWatchlist(WatchlistItem item)
+        {
+            var itemToDelete = _context.Watchlist.FirstOrDefault(i => i.UserLogin.Equals(item.UserLogin) && i.CompanyTicker.Equals(item.CompanyTicker));
+            _context.Watchlist.Remove(itemToDelete);
+            await _context.SaveChangesAsync();
         }
     }
 }

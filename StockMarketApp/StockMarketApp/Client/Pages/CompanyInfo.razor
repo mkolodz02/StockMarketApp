@@ -16,9 +16,12 @@
         <h3>City: @CompMainData.City</h3>
         <SfButton @onclick="AddToWatchlist">Add To Watchlist</SfButton>
         <SfButton @onclick="NavigateToWatchlist">Watchlist</SfButton>
+        <SfButton @onclick="@(() => ChangeChartDates(3))">3 months ago</SfButton>
+        <SfButton @onclick="@(() => ChangeChartDates(2))">2 months ago</SfButton>
+        <SfButton @onclick="@(() => ChangeChartDates(1))">1 month ago</SfButton>
     </div>
 
-    <SfStockChart>
+    <SfStockChart @ref="Chart">
         <StockChartSeriesCollection>
             <StockChartSeries Type="@ChartSeriesType.Candle" DataSource="@OhlcDataList" XName="Date" 
                 Open="O" High="H" Low="L" Close="C" Volume="VW"></StockChartSeries>
@@ -48,17 +51,22 @@ else
     public DailyPricesDto CompDailyPrices { get; set; }
     public List<OhlcData> OhlcDataList { get; set;  }
     public DateTime CurrentDate { get; set; } //Date of the day before - API limitation
-    public string stringCurrentDate { get; set; } = null!;
+    public string StringCurrentDate { get; set; } = null!;
+
+    public DateTime DefaultTimeFrom { get; set; }
+    public SfStockChart? Chart { get; set; }
 
     protected async override Task OnInitializedAsync()
     {
         CurrentDate = DateTime.Now.AddDays(-2);
-        stringCurrentDate = CurrentDate.ToString("yyyy-MM-dd");
+        StringCurrentDate = CurrentDate.ToString("yyyy-MM-dd");
         OhlcDataList = new List<OhlcData>();
         CompMainData = new CompanyMainDataDto();
         CompDailyPrices = new DailyPricesDto();
 
-        await GetOhlcData();
+        DefaultTimeFrom = DateTime.Now.AddMonths(-2);
+
+        await GetOhlcData(DefaultTimeFrom, CurrentDate);
         await GetMainData();        
         await GetDailyPrices();
 
@@ -71,17 +79,24 @@ else
         CompMainData = JsonConvert.DeserializeObject<CompanyMainDataDto>(responseBody);
     }
 
-    public async Task GetOhlcData()
+    public async void ChangeChartDates(int monthsBack)
     {
-        string stringMonthAgoDate = CurrentDate.AddMonths(-2).ToString("yyyy-MM-dd");
-        var result = await httpClient.GetAsync($"https://localhost:7194/api/stocks/OhlcData/{Ticker}/{stringMonthAgoDate}/{stringCurrentDate}");
+        await GetOhlcData(DefaultTimeFrom.AddMonths(-monthsBack), CurrentDate.AddMonths(-monthsBack));
+        Chart.Refresh();
+    }
+
+    public async Task GetOhlcData(DateTime from, DateTime to)
+    {
+        string stringFromDate = from.ToString("yyyy-MM-dd");
+        string stringToDate = to.ToString("yyyy-MM-dd");
+        var result = await httpClient.GetAsync($"https://localhost:7194/api/stocks/OhlcData/{Ticker}/{stringFromDate}/{stringToDate}");
         var responseBody = await result.Content.ReadAsStringAsync();
         OhlcDataList = JsonConvert.DeserializeObject<List<OhlcData>>(responseBody);
     }
 
     public async Task GetDailyPrices()
     {
-        var result = await httpClient.GetAsync($"https://localhost:7194/api/stocks/DailyPrices/{Ticker}/{stringCurrentDate}");
+        var result = await httpClient.GetAsync($"https://localhost:7194/api/stocks/DailyPrices/{Ticker}/{StringCurrentDate}");
         var responseBody = await result.Content.ReadAsStringAsync();
         CompDailyPrices = JsonConvert.DeserializeObject<DailyPricesDto>(responseBody);
     }

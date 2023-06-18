@@ -2,31 +2,42 @@
 @using Microsoft.AspNetCore.Authorization;
 @using Newtonsoft.Json;
 @using Syncfusion.Blazor.Buttons;
+@using Syncfusion.Blazor.Grids;
 @inject HttpClient httpClient
 @inject NavigationManager navigationManager
-@inject IJSRuntime JSRuntime
+@inject IJSRuntime jsRuntime
 @attribute [Authorize]
 
 <h3>Watchlist</h3>
 @if(CompaniesList.Count > 0)
 {
-    <table>
-        <tr>
-            <th>Logo</th>
-            <th>Ticker</th>
-            <th>Name</th>
-            <th>City</th>
-        </tr>
-        @foreach (var comp in CompaniesList)
-        {
-            <tr>
-                <td><img src="@comp.Logo" alt="Logo" /></td>
-                <td>@comp.Ticker</td>
-                <td>@comp.Name</td>
-                <td>@comp.City</td>
-            </tr>
-        }
-    </table>
+    <SfGrid @ref="Grid" DataSource="@CompaniesList" AllowSorting="true" Toolbar=@(new List<string>() {"Search"})>
+        <GridEditSettings AllowEditing="false"></GridEditSettings>
+        <GridColumns>
+            <GridColumn Field="@nameof(CompanyMainDataDto.Logo)" HeaderText="Logo" TextAlign="TextAlign.Center">
+                <Template>
+                @{
+                    var comp = (context as CompanyMainDataDto);
+                    <div class="image">
+                        <img src="@comp.Logo" alt="Logo"/>
+                    </div>
+                }
+                </Template>
+            </GridColumn>
+            <GridColumn Field="@nameof(CompanyMainDataDto.Ticker)" HeaderText="Ticker" TextAlign="TextAlign.Center"></GridColumn>
+            <GridColumn Field="@nameof(CompanyMainDataDto.Name)" HeaderText="Name" TextAlign="TextAlign.Center"></GridColumn>
+            <GridColumn Field="@nameof(CompanyMainDataDto.City)" HeaderText="City" TextAlign="TextAlign.Center"></GridColumn>
+            <GridColumn HeaderText="Actions" TextAlign="TextAlign.Center">
+                <Template>
+                    @{
+                        var comp = (context as CompanyMainDataDto);
+                        <SfButton CssClass="e-danger" @onclick="@(() => RemoveFromWatchlist(comp.Ticker))">X</SfButton>
+                    }
+                </Template>
+            </GridColumn>
+        </GridColumns>
+    </SfGrid>
+
     <SfButton OnClick="NavigateToDashboard">Return</SfButton>
 }
 else
@@ -35,6 +46,7 @@ else
 }
 
 @code {
+    public SfGrid<CompanyMainDataDto> Grid { get; set; }
     public List<CompanyMainDataDto> CompaniesList { get; set; }
     public List<WatchlistItem> WatchlistItems { get; set; }
 
@@ -66,9 +78,23 @@ else
         WatchlistItems = JsonConvert.DeserializeObject<List<WatchlistItem>>(responseBody);
     }
 
+    public async Task RemoveFromWatchlist(string ticker)
+    {
+        bool confirmed = await jsRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to remove this company from watchlist?");
+        var deletedItem = CompaniesList.FirstOrDefault(c => c.Ticker.Equals(ticker));
+
+        if (confirmed)
+        {
+            await httpClient.DeleteAsync($"https://localhost:7194/api/watchlist/removeFromWatchlist/{ticker}");
+            CompaniesList.Remove(deletedItem);
+            Grid.Refresh();
+        }
+
+    }
+
     public async void NavigateToDashboard()
     {
-        await JSRuntime.InvokeVoidAsync("history.back");
+        await jsRuntime.InvokeVoidAsync("history.back");
     }
 
 }
