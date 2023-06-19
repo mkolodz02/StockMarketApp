@@ -1,0 +1,47 @@
+﻿body {
+}
+
+.main-info {
+    font-family: system-ui;
+}
+
+.logo_info {
+    display: flex;
+    margin-inline: 70px;
+    gap: 300px;
+    margin-bottom: 50px;
+}
+
+.watchlist-buttons {
+    margin-bottom: 30px;
+    margin-left: 140px;
+    display: flex;
+    gap: 60px
+}
+
+.chart-buttons{
+    display: flex;
+    margin-left: 700px;
+    margin-bottom: 5px;
+    gap: 10px;
+}
+
+.daily-data {
+    display: flex;
+    gap: 113px;
+}
+
+.current-date {
+    margin-top: 35px;
+    margin-bottom: 20px;
+}
+
+span {
+    font-weight: bolder;
+    color: crimson;
+}
+
+.logo-img{
+    height: 100px;
+    width: 200px;
+}

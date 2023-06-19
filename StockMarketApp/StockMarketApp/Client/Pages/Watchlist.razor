@@ -8,9 +8,10 @@
 @inject IJSRuntime jsRuntime
 @attribute [Authorize]
 
-<h3>Watchlist</h3>
 @if(CompaniesList.Count > 0)
 {
+    <h3 class="title">Watchlist</h3>
+
     <SfGrid @ref="Grid" DataSource="@CompaniesList" AllowSorting="true" Toolbar=@(new List<string>() {"Search"})>
         <GridEditSettings AllowEditing="false"></GridEditSettings>
         <GridColumns>
@@ -19,7 +20,7 @@
                 @{
                     var comp = (context as CompanyMainDataDto);
                     <div class="image">
-                        <img src="@comp.Logo" alt="Logo"/>
+                        <img src="@comp.Logo" alt="Logo" class="logo-img"/>
                     </div>
                 }
                 </Template>
@@ -38,12 +39,26 @@
         </GridColumns>
     </SfGrid>
 
-    <SfButton OnClick="NavigateToDashboard">Return</SfButton>
+    <SfButton class="return-button" OnClick="NavigateToDashboard">Return</SfButton>
 }
 else
 {
     <img src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif?20151024034921" />
 }
+
+<style>
+    .return-button{
+        margin-top: 30px;
+        background-color: #1ac95a;
+    }
+
+    .e-grid .e-headercell .e-headercelldiv {
+        text-align: center;
+        color: crimson;
+        font-size: 20px;
+    }
+
+</style>
 
 @code {
     public SfGrid<CompanyMainDataDto> Grid { get; set; }

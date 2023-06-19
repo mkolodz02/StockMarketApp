@@ -1,11 +1,20 @@
 ﻿@page "/"
+@inject NavigationManager navigationManager;
 
 <PageTitle>Index</PageTitle>
 
-<h1>Welcome in Stock Market App</h1>
-<a href="/companies">To begin, click here</a>
+<h1 class"title-header">Welcome in Stock Market App</h1>
+<button @onclick="NavigateToCompanies" class="begin-button">To begin, click here</button>
+@*<a href="/companies">To begin, click here</a>
 <br />
-<a href="authentication/login">To login, click here</a>
+<a href="authentication/login">To login, click here</a>*@
 
 
+@code{
 
+    public void NavigateToCompanies()
+    {
+        navigationManager.NavigateTo("/companies");
+    }
+
+}

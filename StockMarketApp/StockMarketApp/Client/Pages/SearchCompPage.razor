@@ -5,10 +5,11 @@
 @inject NavigationManager navigationManager
 @attribute [Authorize]
 
-<h3>SearchPage</h3>
+<h3 class="title">Choose company</h3>
 
 <div class="search-bar">
-    <SfAutoComplete @ref="AutoComp" TItem="CompanyTickerNameDto" TValue="string" MinLength=3 Placeholder="Select a company" DataSource="CompaniesList">
+    <SfAutoComplete @ref="AutoComp" TItem="CompanyTickerNameDto" TValue="string" MinLength=3 Placeholder="Select a company" DataSource="CompaniesList" Width="500px"
+        ShowPopupButton="true" CssClass="e-outline">
         <AutoCompleteTemplates TItem="CompanyTickerNameDto">
             <ItemTemplate>
                 <span class="ticker">@((context as CompanyTickerNameDto).Ticker)</span>   <span class="name">@((context as CompanyTickerNameDto).Name)</span>
@@ -20,9 +21,32 @@
     </SfAutoComplete>
 </div>
 
+<style>
+    .e-ddl.e-input-group.e-control-wrapper .e-input {
+        font-size: 20px;
+        color: black;
+    }
+
+    .e-dropdownbase .e-list-item.e-item-focus, .e-dropdownbase .e-list-item.e-active, .e-dropdownbase .e-list-item.e-active.e-hover, .e-dropdownbase .e-list-item.e-hover {
+        background-color: aliceblue;
+        color: black
+    }
+
+    .e-ddl .e-lib .e-input-group .e-control-container .e-control-wrapper .e-outline .e-keyboard{
+        margin-left: 300px;
+        background-color: pink;
+    }
+
+    .search-bar {
+        margin-left: 555px;
+        margin-top: 45px;
+    }
+
+</style>
+
 @code {
 
-    public SfAutoComplete<string, CompanyTickerNameDto> AutoComp { get; set; }
+    public SfAutoComplete<string, CompanyTickerNameDto>? AutoComp { get; set; }
     public List<CompanyTickerNameDto> CompaniesList { get; set; }
 
     public string controllerUrl = "https://localhost:7194/api/stocks/StocksList";

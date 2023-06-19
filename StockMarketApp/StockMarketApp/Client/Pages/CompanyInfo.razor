@@ -9,16 +9,25 @@
 
 @if(OhlcDataList.Count > 0)
 {
-    <div class="main-info">
-        <img src="@CompMainData.Logo" alt="Logo" />
-        <h2>Ticker: @CompMainData.Ticker</h2>
-        <h3>Full name: @CompMainData.Name</h3>
-        <h3>City: @CompMainData.City</h3>
-        <SfButton @onclick="AddToWatchlist">Add To Watchlist</SfButton>
-        <SfButton @onclick="NavigateToWatchlist">Watchlist</SfButton>
-        <SfButton @onclick="@(() => ChangeChartDates(3))">3 months ago</SfButton>
-        <SfButton @onclick="@(() => ChangeChartDates(2))">2 months ago</SfButton>
-        <SfButton @onclick="@(() => ChangeChartDates(1))">1 month ago</SfButton>
+    <div class="logo_info">
+        <img src="@CompMainData.Logo" alt="Logo" class="logo-img" />
+
+        <div class="main-info">
+            <h2><span>Ticker: </span>@CompMainData.Ticker</h2>
+            <h3><span>Full name: </span>@CompMainData.Name</h3>
+            <h3><span>City: </span>@CompMainData.City</h3>
+        </div>
+    </div>
+
+    <div class="watchlist-buttons">
+        <SfButton @onclick="AddToWatchlist" class="add_to_watchlist_button">+</SfButton>
+        <SfButton @onclick="NavigateToWatchlist" class="watchlist-button">Watchlist</SfButton>
+    </div>
+
+    <div class="chart-buttons">
+        <SfButton @onclick="@(() => ChangeChartDates(3))" class="one-month-button">3 months ago</SfButton>
+        <SfButton @onclick="@(() => ChangeChartDates(2))" class="two-month-button">2 months ago</SfButton>
+        <SfButton @onclick="@(() => ChangeChartDates(1))" class="three-month-button">1 month ago</SfButton>
     </div>
 
     <SfStockChart @ref="Chart">
@@ -28,21 +37,37 @@
         </StockChartSeriesCollection>
     </SfStockChart>
 
+    <h3 class="current-date"><span>Date: </span>@CompDailyPrices.From</h3>
+
     <div class="daily-data">
-        <h3>Date: @CompDailyPrices.From</h3>
-        <h3>Open: @CompDailyPrices.Open</h3>
-        <h3>High: @CompDailyPrices.High</h3>
-        <h3>Low: @CompDailyPrices.Low</h3>
-        <h3>Close: @CompDailyPrices.Close</h3>
-        <h3>Volume: @CompDailyPrices.Volume</h3>
-        <h3>AfterHours: @CompDailyPrices.AfterHours</h3>
-        <h3>PreMarket: @CompDailyPrices.PreMarket</h3>
+        <div class="daily-ohlc">
+            <h3><span>Open: </span>@CompDailyPrices.Open</h3>
+            <h3><span>High: </span>@CompDailyPrices.High</h3>
+            <h3><span>Low: </span>@CompDailyPrices.Low</h3>
+            <h3><span>Close: </span>@CompDailyPrices.Close</h3>
+        </div>
+        <div class="daily-rest">
+            <h3><span>Volume: </span>@CompDailyPrices.Volume</h3>
+            <h3><span>After hours: </span>@CompDailyPrices.AfterHours</h3>
+            <h3><span>Pre market: </span>@CompDailyPrices.PreMarket</h3>
+        </div>
     </div>
 }
 else
 {
     <img src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif?20151024034921" />
 }
+
+<style>
+    .add_to_watchlist_button, .watchlist-button {
+        background-color: red;
+    }
+
+    .one-month-button, .two-month-button, .three-month-button{
+        background-color: #1ac95a;
+    }
+
+</style>
 
 @code {
     [Parameter]
@@ -58,7 +83,7 @@ else
 
     protected async override Task OnInitializedAsync()
     {
-        CurrentDate = DateTime.Now.AddDays(-2);
+        CurrentDate = DateTime.Now.AddDays(-3);
         StringCurrentDate = CurrentDate.ToString("yyyy-MM-dd");
         OhlcDataList = new List<OhlcData>();
         CompMainData = new CompanyMainDataDto();
