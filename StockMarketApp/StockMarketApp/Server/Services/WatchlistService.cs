@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using StockMarketApp.Server.Data;
 using StockMarketApp.Shared.Models;
-using Syncfusion.Blazor.RichTextEditor;
 
 namespace StockMarketApp.Server.Services
 {

@@ -10,12 +10,12 @@
 @if(OhlcDataList.Count > 0)
 {
     <div class="logo_info">
-        <img src="@CompMainData.Logo" alt="Logo" class="logo-img" />
+        <img src="@Logo" alt="Logo" class="logo-img" />
 
         <div class="main-info">
-            <h2><span>Ticker: </span>@CompMainData.Ticker</h2>
-            <h3><span>Full name: </span>@CompMainData.Name</h3>
-            <h3><span>City: </span>@CompMainData.City</h3>
+            <h2><span>Ticker: </span>@Ticker</h2>
+            <h3><span>Full name: </span>@Name</h3>
+            <h3><span>City: </span>@City</h3>
         </div>
     </div>
 
@@ -28,6 +28,7 @@
         <SfButton @onclick="@(() => ChangeChartDates(3))" class="one-month-button">3 months ago</SfButton>
         <SfButton @onclick="@(() => ChangeChartDates(2))" class="two-month-button">2 months ago</SfButton>
         <SfButton @onclick="@(() => ChangeChartDates(1))" class="three-month-button">1 month ago</SfButton>
+        <SfButton @onclick="@(() => ChangeChartDates(0))" class="current-date-button">Current date</SfButton>
     </div>
 
     <SfStockChart @ref="Chart">
@@ -63,7 +64,7 @@ else
         background-color: red;
     }
 
-    .one-month-button, .two-month-button, .three-month-button{
+    .one-month-button, .two-month-button, .three-month-button, .current-date-button {
         background-color: #1ac95a;
     }
 
@@ -72,29 +73,40 @@ else
 @code {
     [Parameter]
     public string Ticker { get; set; } = null!;
+    public string Logo { get; set; } = null!;
+    public string Name { get; set; } = null!;
+    public string City { get; set; } = null!;
+
+
     public CompanyMainDataDto CompMainData { get; set; }
     public DailyPricesDto CompDailyPrices { get; set; }
     public List<OhlcData> OhlcDataList { get; set;  }
+    public SfStockChart? Chart { get; set; }
+
+
     public DateTime CurrentDate { get; set; } //Date of the day before - API limitation
+    public DateTime DefaultTimeFrom { get; set; }
     public string StringCurrentDate { get; set; } = null!;
 
-    public DateTime DefaultTimeFrom { get; set; }
-    public SfStockChart? Chart { get; set; }
 
     protected async override Task OnInitializedAsync()
     {
-        CurrentDate = DateTime.Now.AddDays(-3);
-        StringCurrentDate = CurrentDate.ToString("yyyy-MM-dd");
-        OhlcDataList = new List<OhlcData>();
         CompMainData = new CompanyMainDataDto();
         CompDailyPrices = new DailyPricesDto();
+        OhlcDataList = new List<OhlcData>();
 
+        CurrentDate = DateTime.Now.AddDays(-4);
         DefaultTimeFrom = DateTime.Now.AddMonths(-2);
+        StringCurrentDate = CurrentDate.ToString("yyyy-MM-dd");
 
         await GetOhlcData(DefaultTimeFrom, CurrentDate);
-        await GetMainData();        
+        await GetMainData();
         await GetDailyPrices();
-
+        
+        Logo = CompMainData.Results.Branding is null ? "No data" : CompMainData.Results.Branding.Logo_url;
+        Name = CompMainData.Results.Name is null ? "No data" : CompMainData.Results.Name;
+        City = CompMainData.Results.Address is null ? "No data" : CompMainData.Results.Address.City;
+        
     }
 
     public async Task GetMainData()
@@ -104,11 +116,13 @@ else
         CompMainData = JsonConvert.DeserializeObject<CompanyMainDataDto>(responseBody);
     }
 
+
     public async void ChangeChartDates(int monthsBack)
     {
         await GetOhlcData(DefaultTimeFrom.AddMonths(-monthsBack), CurrentDate.AddMonths(-monthsBack));
         Chart.Refresh();
     }
+
 
     public async Task GetOhlcData(DateTime from, DateTime to)
     {
@@ -119,12 +133,14 @@ else
         OhlcDataList = JsonConvert.DeserializeObject<List<OhlcData>>(responseBody);
     }
 
+
     public async Task GetDailyPrices()
     {
         var result = await httpClient.GetAsync($"https://localhost:7194/api/stocks/DailyPrices/{Ticker}/{StringCurrentDate}");
         var responseBody = await result.Content.ReadAsStringAsync();
         CompDailyPrices = JsonConvert.DeserializeObject<DailyPricesDto>(responseBody);
     }
+
 
     public async Task AddToWatchlist()
     {
@@ -137,6 +153,7 @@ else
         await httpClient.PostAsJsonAsync("https://localhost:7194/api/watchlist/addToWatchlist", newItem);
         //await NavigateToWatchlist();
     }
+
 
     public async Task NavigateToWatchlist()
     {

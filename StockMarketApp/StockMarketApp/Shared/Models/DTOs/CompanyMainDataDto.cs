@@ -2,9 +2,8 @@
 {
     public class CompanyMainDataDto
     {
-        public string Ticker { get; set; } = null!;
-        public string Logo { get; set; } = null!;
-        public string Name { get; set; } = null!;
-        public string City { get; set; } = null!;
+        public string Request_id { get; set; } = null!;
+        public MainResultsDto Results { get; set; }
+        public string Status { get; set; } = null!;
     }
 }

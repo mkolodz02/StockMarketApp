@@ -15,24 +15,24 @@
     <SfGrid @ref="Grid" DataSource="@CompaniesList" AllowSorting="true" Toolbar=@(new List<string>() {"Search"})>
         <GridEditSettings AllowEditing="false"></GridEditSettings>
         <GridColumns>
-            <GridColumn Field="@nameof(CompanyMainDataDto.Logo)" HeaderText="Logo" TextAlign="TextAlign.Center">
+            <GridColumn Field="@nameof(CompanyMainDataDto.Results.Branding.Logo_url)" HeaderText="Logo" TextAlign="TextAlign.Center">
                 <Template>
                 @{
                     var comp = (context as CompanyMainDataDto);
                     <div class="image">
-                        <img src="@comp.Logo" alt="Logo" class="logo-img"/>
+                            <img src="@comp.Results.Branding.Logo_url" alt="Logo" class="logo-img" />
                     </div>
                 }
                 </Template>
             </GridColumn>
-            <GridColumn Field="@nameof(CompanyMainDataDto.Ticker)" HeaderText="Ticker" TextAlign="TextAlign.Center"></GridColumn>
-            <GridColumn Field="@nameof(CompanyMainDataDto.Name)" HeaderText="Name" TextAlign="TextAlign.Center"></GridColumn>
-            <GridColumn Field="@nameof(CompanyMainDataDto.City)" HeaderText="City" TextAlign="TextAlign.Center"></GridColumn>
+            <GridColumn Field="Results.Ticker" HeaderText="Ticker" TextAlign="TextAlign.Center"></GridColumn>
+            <GridColumn Field="Results.Name" HeaderText="Name" TextAlign="TextAlign.Center"></GridColumn>
+            <GridColumn Field="Results.Address.City" HeaderText="City" TextAlign="TextAlign.Center"></GridColumn>
             <GridColumn HeaderText="Actions" TextAlign="TextAlign.Center">
                 <Template>
                     @{
                         var comp = (context as CompanyMainDataDto);
-                        <SfButton CssClass="e-danger" @onclick="@(() => RemoveFromWatchlist(comp.Ticker))">X</SfButton>
+                        <SfButton CssClass="e-danger" @onclick="@(() => RemoveFromWatchlist(comp.Results.Ticker))">X</SfButton>
                     }
                 </Template>
             </GridColumn>
@@ -96,7 +96,7 @@ else
     public async Task RemoveFromWatchlist(string ticker)
     {
         bool confirmed = await jsRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to remove this company from watchlist?");
-        var deletedItem = CompaniesList.FirstOrDefault(c => c.Ticker.Equals(ticker));
+        var deletedItem = CompaniesList.FirstOrDefault(c => c.Results.Ticker.Equals(ticker));
 
         if (confirmed)
         {

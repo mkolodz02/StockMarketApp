@@ -7,7 +7,6 @@ using StockMarketApp.Shared.Models;
 
 namespace StockMarketApp.Server.Services
 {
-
     public interface IStocksService
     {
         Task<CompanyMainDataDto> GetStockInfo(string ticker);
@@ -55,42 +54,23 @@ namespace StockMarketApp.Server.Services
 
             string responseBody = await GetResponseBody(url);
 
-            var jsonObject = JObject.Parse(responseBody);
-
-            string logo = jsonObject?["results"]["branding"]["logo_url"] == null ? // zrobić coś z nullami
-                "brak danych" :
-                Convert.ToString(jsonObject?["results"]["branding"]["logo_url"]) + "?apiKey=XjtXTzHcSpBZy3bYsKF1fw4GeFe1VpKg";
-
-            string name = jsonObject?["results"]["name"] == null ? "brak danych" : Convert.ToString(jsonObject?["results"]["name"]);
-
-            string city = jsonObject?["results"]["address"]["city"] == null ? "brak danych" : 
-                Convert.ToString(jsonObject?["results"]["address"]["city"]);
-
-            //return new CompanyMainDataDto
-            //{
-            //    Ticker = Convert.ToString(jsonObject["results"]["ticker"]),
-            //    Logo = Convert.ToString(jsonObject["results"]["branding"]["logo_url"]) + "?apiKey=XjtXTzHcSpBZy3bYsKF1fw4GeFe1VpKg",
-            //    Name = Convert.ToString(jsonObject["results"]["name"]),
-            //    City = Convert.ToString(jsonObject["results"]["address"]["city"])
-
-            //}; 
-            return new CompanyMainDataDto
-            {
-                Ticker = ticker,
-                Logo = logo,
-                Name = name,
-                City = city
-            };
+            return JsonConvert.DeserializeObject<CompanyMainDataDto>(responseBody);
         }
 
         public async Task AddCompToDatabase(CompanyMainDataDto company)
         {
+
+            var compTicker = company.Results.Ticker is null ? "no data" : company.Results.Ticker;
+            var compLogo = company.Results.Branding is null ? "no data" : company.Results.Branding.Logo_url;
+            var compName = company.Results.Name is null ? "no data" : company.Results.Name;
+            var compCity = company.Results.Address is null ? "no data" : company.Results.Address.City;
+
             var cachedMainData = new CachedMainData()
             {
-                Ticker = company.Ticker,
-                Logo = company.Logo,
-                Name = company.Name,
-                City = company.City,
+                Ticker = compTicker,
+                Logo = compLogo,
+                Name = compName,
+                City = compCity,
             };
 
             await _context.AddAsync(cachedMainData);
@@ -103,10 +83,21 @@ namespace StockMarketApp.Server.Services
             var info = await _context.MainCompanyData.FirstAsync(i => i.Ticker == ticker);
             return new CompanyMainDataDto
             {
-                Ticker = info.Ticker,
-                Logo = info.Logo,
-                Name = info.Name,
-                City = info.City,
+                Results = new MainResultsDto()
+                {
+                    Ticker = info.Ticker,
+                    Name = info.Name,
+                    Address = new AddressDto()
+                    {
+                        City = info.City
+                    },
+                    
+                    Branding = new BrandingDto()
+                    {
+                        Logo_url = info.Logo
+                    }
+                },
+                
             };
         }
 
@@ -129,21 +120,7 @@ namespace StockMarketApp.Server.Services
 
             string responseBody = await GetResponseBody(url);
 
-            var jsonObject = JObject.Parse(responseBody);
-
-            return new DailyPricesDto
-            {
-                Status = Convert.ToString(jsonObject["status"]),
-                From = Convert.ToString(jsonObject["from"]),
-                Symbol = Convert.ToString(jsonObject["symbol"]),
-                Open = Convert.ToDouble(jsonObject["open"]),
-                High = Convert.ToDouble(jsonObject["high"]),
-                Low = Convert.ToDouble(jsonObject["low"]),
-                Close = Convert.ToDouble(jsonObject["close"]),
-                Volume = Convert.ToDouble(jsonObject["volume"]),
-                AfterHours = Convert.ToDouble(jsonObject["afterHours"]),
-                PreMarket = Convert.ToDouble(jsonObject["preMarket"]),
-            };
+            return JsonConvert.DeserializeObject<DailyPricesDto>(responseBody);
         }
 
         public async Task<bool> IsCompInDatabase(string ticker)
