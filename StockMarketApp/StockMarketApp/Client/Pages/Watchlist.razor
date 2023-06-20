@@ -1,7 +1,6 @@
 ﻿@page "/companies/watchlist"
 @using Microsoft.AspNetCore.Authorization;
 @using Newtonsoft.Json;
-@using Syncfusion.Blazor.Buttons;
 @using Syncfusion.Blazor.Grids;
 @inject HttpClient httpClient
 @inject NavigationManager navigationManager
@@ -32,7 +31,9 @@
                 <Template>
                     @{
                         var comp = (context as CompanyMainDataDto);
-                        <SfButton CssClass="e-danger" @onclick="@(() => RemoveFromWatchlist(comp.Results.Ticker))">X</SfButton>
+                        string ticker = comp.Results.Ticker;
+                        <SfButton CssClass="e-danger" @onclick="@(() => RemoveFromWatchlist(ticker))">X</SfButton>
+                        <SfButton CssClass="e-success" @onclick="@(() => NavigateToDetails(ticker))">Details</SfButton>
                     }
                 </Template>
             </GridColumn>
@@ -105,6 +106,11 @@ else
             Grid.Refresh();
         }
 
+    }
+
+    public void NavigateToDetails(string ticker)
+    {
+        navigationManager.NavigateTo($"/companies/{ticker}");
     }
 
     public async void NavigateToDashboard()

@@ -143,7 +143,7 @@ namespace StockMarketApp.Server.Services
                     }
                     else
                     {
-                        throw new Exception("Niepoprawny status");
+                        throw new Exception($"Request failed. Error status code: {(int) resp.StatusCode}");
                     }
                 }
                 catch (Exception)

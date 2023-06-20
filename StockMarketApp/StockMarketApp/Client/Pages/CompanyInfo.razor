@@ -2,13 +2,21 @@
 @using Microsoft.AspNetCore.Authorization;
 @using Newtonsoft.Json;
 @using Newtonsoft.Json.Linq;
-@using Syncfusion.Blazor.Buttons;
+@using Syncfusion.Blazor.Notifications;
+@using Syncfusion.Blazor.Charts
 @inject HttpClient httpClient
 @inject NavigationManager navigationManager
 @attribute [Authorize]
 
 @if(OhlcDataList.Count > 0)
 {
+
+    <div class="toast">
+        <SfToast ID="toast-success" @ref="ToastObject" Title="Success" Content="Company added to watchlist" Timeout="3000">
+            <ToastPosition X="Right"></ToastPosition>
+        </SfToast> 
+    </div>
+
     <div class="logo_info">
         <img src="@Logo" alt="Logo" class="logo-img" />
 
@@ -68,6 +76,15 @@ else
         background-color: #1ac95a;
     }
 
+    .e-toast-container .e-toast .e-toast-message .e-toast-title {
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .e-toast-container .e-toast {
+        background-color: #1ac95a;
+    }
+
 </style>
 
 @code {
@@ -77,12 +94,11 @@ else
     public string Name { get; set; } = null!;
     public string City { get; set; } = null!;
 
-
     public CompanyMainDataDto CompMainData { get; set; }
     public DailyPricesDto CompDailyPrices { get; set; }
     public List<OhlcData> OhlcDataList { get; set;  }
     public SfStockChart? Chart { get; set; }
-
+    public SfToast ToastObject { get; set; }
 
     public DateTime CurrentDate { get; set; } //Date of the day before - API limitation
     public DateTime DefaultTimeFrom { get; set; }
@@ -102,11 +118,11 @@ else
         await GetOhlcData(DefaultTimeFrom, CurrentDate);
         await GetMainData();
         await GetDailyPrices();
-        
+
         Logo = CompMainData.Results.Branding is null ? "No data" : CompMainData.Results.Branding.Logo_url;
         Name = CompMainData.Results.Name is null ? "No data" : CompMainData.Results.Name;
         City = CompMainData.Results.Address is null ? "No data" : CompMainData.Results.Address.City;
-        
+
     }
 
     public async Task GetMainData()
@@ -151,7 +167,7 @@ else
         };
 
         await httpClient.PostAsJsonAsync("https://localhost:7194/api/watchlist/addToWatchlist", newItem);
-        //await NavigateToWatchlist();
+        await this.ToastObject.ShowAsync();
     }
 
 

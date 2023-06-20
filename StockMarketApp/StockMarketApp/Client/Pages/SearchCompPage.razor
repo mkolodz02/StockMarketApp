@@ -1,6 +1,7 @@
 ﻿@page "/companies"
 @using Microsoft.AspNetCore.Authorization;
 @using Newtonsoft.Json;
+@using Syncfusion.Blazor.DropDowns
 @inject HttpClient httpClient
 @inject NavigationManager navigationManager
 @attribute [Authorize]
@@ -8,6 +9,7 @@
 <h3 class="title">Choose company</h3>
 
 <div class="search-bar">
+
     <SfAutoComplete @ref="AutoComp" TItem="CompanyTickerNameDto" TValue="string" MinLength=3 Placeholder="Select a company" DataSource="CompaniesList" Width="500px"
         ShowPopupButton="true" CssClass="e-outline">
         <AutoCompleteTemplates TItem="CompanyTickerNameDto">
@@ -19,6 +21,9 @@
         </AutoCompleteFieldSettings>
         <AutoCompleteEvents TValue="string" TItem="CompanyTickerNameDto" ValueChange="OnValueChanged" OnValueSelect="OnSelected"></AutoCompleteEvents>
     </SfAutoComplete>
+
+    <SfButton class="search-button" OnClick="Search">Search</SfButton>
+
 </div>
 
 <style>
@@ -38,8 +43,15 @@
     }
 
     .search-bar {
-        margin-left: 555px;
+        margin-left: 510px;
         margin-top: 45px;
+    }
+
+    .search-button{
+        background-color: #1ac95a;
+        font-size: 16px;
+        padding: 13px;
+        margin-bottom: 4px;
     }
 
 </style>
@@ -49,25 +61,34 @@
     public SfAutoComplete<string, CompanyTickerNameDto>? AutoComp { get; set; }
     public List<CompanyTickerNameDto> CompaniesList { get; set; }
 
-    public string controllerUrl = "https://localhost:7194/api/stocks/StocksList";
+    public string GetStockListUrl = "https://localhost:7194/api/stocks/StocksList";
 
-    public string chosenCompanyTicker { get; set; } = null!;
+    public string ChosenCompanyTicker { get; set; } = null!;
 
     protected async override Task OnInitializedAsync()
     {
         CompaniesList = new List<CompanyTickerNameDto>();
+        ChosenCompanyTicker = "";
     }
 
     private void OnSelected(SelectEventArgs<CompanyTickerNameDto> args)
     {
-        navigationManager.NavigateTo($"/companies/{args.ItemData.Ticker}");
+        ChosenCompanyTicker = args.ItemData.Ticker;        
+    }
+
+    private void Search()
+    {
+        if(ChosenCompanyTicker.Length > 0)
+        {
+            navigationManager.NavigateTo($"/companies/{ChosenCompanyTicker}");
+        }
     }
 
     private async void OnValueChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<string, CompanyTickerNameDto> args)
     {
         if(args != null && args.Value.Length == 3)
         {
-            await GetCompaniesList(controllerUrl + "/" + args.Value.ToUpper());
+            await GetCompaniesList(GetStockListUrl + "/" + args.Value.ToUpper());
         }
     }
 
