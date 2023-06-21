@@ -1,15 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using StockMarketApp.Server.Models;
 using StockMarketApp.Server.Services;
 using StockMarketApp.Shared.Models;
-using System.Security.Claims;
 
 namespace StockMarketApp.Server.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class WatchlistController : ControllerBase
@@ -28,7 +26,6 @@ namespace StockMarketApp.Server.Controllers
         [HttpGet("userWatchlist")]
         public async Task<IActionResult> GetUserWatchlistItems()
         {
-            //var user = _userManager.Users.FirstOrDefault();
             return Ok(await _service.GetUserWatchlistItems(user.Email));
         }
 

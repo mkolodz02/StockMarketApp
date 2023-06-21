@@ -41,7 +41,7 @@
 
     <SfStockChart @ref="Chart">
         <StockChartSeriesCollection>
-            <StockChartSeries Type="@ChartSeriesType.Candle" DataSource="@OhlcDataList" XName="Date" 
+            <StockChartSeries Type="@ChartSeriesType.HiloOpenClose" DataSource="@OhlcDataList" XName="Date" 
                 Open="O" High="H" Low="L" Close="C" Volume="VW"></StockChartSeries>
         </StockChartSeriesCollection>
     </SfStockChart>
@@ -111,7 +111,7 @@ else
         CompDailyPrices = new DailyPricesDto();
         OhlcDataList = new List<OhlcData>();
 
-        CurrentDate = DateTime.Now.AddDays(-4);
+        CurrentDate = DateTime.Now.AddDays(-5);
         DefaultTimeFrom = DateTime.Now.AddMonths(-2);
         StringCurrentDate = CurrentDate.ToString("yyyy-MM-dd");
 

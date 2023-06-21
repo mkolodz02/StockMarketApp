@@ -4,7 +4,7 @@ using StockMarketApp.Server.Services;
 
 namespace StockMarketApp.Server.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class StocksController : ControllerBase
